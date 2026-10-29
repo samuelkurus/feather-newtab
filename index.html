@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
-  <title>New Tab</title>
+  <title>Nová karta</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -33,6 +33,7 @@
       color: #f1f5f9;
       min-height: 100vh;
       overflow-x: hidden;
+      transition: background 0.3s ease; /* Pridaná animácia pre zmenu pozadia */
     }
     /* Efekt pre hodiny – jemný svetelný odlesk a tieň */
     .clock-glow {
@@ -88,7 +89,7 @@
   </header>
 
   <!-- STREDNÁ SEKCIA: Hodiny, Dátum, Vyhľadávanie a Rýchly prístup -->
-  <main class="w-full max-w-2xl mx-auto flex flex-col items-center justify-center text-center my-auto py-8">
+  <main class="w-full max-w-2xl mx-auto flex flex-col items-center justify-center text-center my-auto py-8 z-10">
     
     <!-- Digitálne hodiny (BEZ SEKÚND) -->
     <div id="clock-display" class="clock-glow text-6xl sm:text-8xl md:text-9xl font-extrabold text-white tracking-tighter leading-none select-none transition-transform duration-200">
@@ -122,7 +123,7 @@
     </form>
 
     <!-- Rýchly prístup (Dlaždice skratiek pod search barom) -->
-    <div id="shortcuts-grid" class="w-full max-w-xl mt-7 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+    <div id="shortcuts-grid" class="w-full max-w-xl mt-7 flex flex-wrap items-center justify-center gap-3 sm:gap-4 z-10">
       <!-- Generuje sa dynamicky cez JS -->
     </div>
   </main>
@@ -162,7 +163,7 @@
       <div class="flex justify-between items-center pb-4 border-b border-white/10">
         <div class="flex items-center space-x-2.5">
           <i class="ph ph-sliders text-indigo-400 text-xl"></i>
-          <h2 class="text-lg font-bold text-white">Nastavenia</h2>
+          <h2 class="text-lg font-bold text-white" id="modal-title-text">Nastavenia</h2>
         </div>
         <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
           <i class="ph ph-x font-bold"></i>
@@ -171,20 +172,67 @@
 
       <div class="mt-5 space-y-6">
         
+        <!-- NOVÁ SEKCIA: Všeobecné (Jazyk, Vyhľadávač, Pozadie) -->
+        <div class="space-y-3 pb-4 border-b border-white/10">
+          <label class="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
+            <i class="ph ph-palette text-pink-400"></i>
+            <span id="lbl-gen-settings">Všeobecné</span>
+          </label>
+          <div class="space-y-2">
+            
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="lbl-lang">Jazyk / Language</span>
+              <select id="select-lang" class="glass-input text-xs text-slate-100 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
+                <option value="sk">Slovenčina</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="lbl-se">Vyhľadávač</span>
+              <select id="select-se" class="glass-input text-xs text-slate-100 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
+                <option value="google">Google</option>
+                <option value="bing">Bing</option>
+                <option value="brave">Brave Search</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+              </select>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="lbl-bg">Pozadie</span>
+              <select id="select-bg" class="glass-input text-xs text-slate-100 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
+                <option value="default" id="opt-bg-def">Predvolené</option>
+                <option value="file" id="opt-bg-file">Vlastný obrázok z PC</option>
+                <option value="unsplash" id="opt-bg-unsp">Unsplash</option>
+              </select>
+            </div>
+            
+            <input type="file" id="input-bg-file" accept="image/*" class="hidden text-xs text-slate-400 w-full mt-2 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"/>
+            <button id="btn-reset-bg" class="hidden w-full bg-rose-600/80 hover:bg-rose-500 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all mt-1">
+              Vymazať vlastné pozadie
+            </button>
+            
+          </div>
+          <button onclick="saveGeneralSettings()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md active:scale-95 shrink-0 mt-2" id="btn-save-general">
+            Uložiť všeobecné
+          </button>
+        </div>
+
         <!-- Sekcia: Lokalita počasia -->
         <div id="weather-section" class="space-y-2">
           <label class="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
             <i class="ph ph-map-pin text-indigo-400"></i>
-            <span>Mesto / Lokalita pre počasie</span>
+            <span id="lbl-weather-text">Mesto / Lokalita pre počasie</span>
           </label>
           <div class="flex space-x-2">
             <input 
               id="input-city" 
               type="text" 
-              placeholder="napr. Bratislava, Košice, Poprad..." 
+              placeholder="napr. Bratislava..." 
               class="w-full glass-input text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 rounded-xl px-3.5 py-2.5"
             />
             <button 
+              id="btn-save-weather"
               onclick="saveCitySetting()" 
               class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md active:scale-95 shrink-0"
             >
@@ -198,7 +246,7 @@
         <div class="space-y-2">
           <label class="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
             <i class="ph ph-sparkle text-purple-400"></i>
-            <span>Cieľová stránka pre tlačidlo AI</span>
+            <span id="lbl-ai-text">Cieľová stránka pre tlačidlo AI</span>
           </label>
           <div class="flex space-x-2">
             <input 
@@ -208,13 +256,13 @@
               class="w-full glass-input text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 rounded-xl px-3.5 py-2.5"
             />
             <button 
+              id="btn-save-ai"
               onclick="saveAiSetting()" 
               class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md active:scale-95 shrink-0"
             >
               Uložiť
             </button>
           </div>
-          <p class="text-[11px] text-slate-400">Predvolené: https://gemini.google.com</p>
         </div>
 
         <!-- Sekcia: Rýchly prístup (Správa skratiek) -->
@@ -222,7 +270,7 @@
           <div class="flex justify-between items-center">
             <label class="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
               <i class="ph ph-bookmark-simple text-amber-400"></i>
-              <span>Rýchly prístup (Skratky)</span>
+              <span id="lbl-sc-text">Rýchly prístup (Skratky)</span>
             </label>
             <span class="text-[11px] text-slate-400" id="shortcut-count">0/8</span>
           </div>
@@ -243,6 +291,7 @@
                 class="w-full glass-input text-xs text-slate-100 placeholder:text-slate-500 rounded-lg px-3 py-2"
               />
               <button 
+                id="btn-add-sc"
                 onclick="addShortcut()" 
                 class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all active:scale-95 shrink-0"
               >
@@ -260,7 +309,7 @@
       </div>
 
       <div class="mt-6 pt-4 border-t border-white/10 flex justify-end">
-        <button onclick="closeSettingsModal()" class="w-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold py-2.5 rounded-xl transition-colors">
+        <button id="btn-done" onclick="closeSettingsModal()" class="w-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold py-2.5 rounded-xl transition-colors">
           Hotovo
         </button>
       </div>
@@ -270,13 +319,64 @@
 
   <script>
     /* ========================================================
-       1. ČAS A DÁTUM (Bez sekúnd, formát: HH:MM po slovensky)
+       0. PREKLADY (JAZYK) A DOPLNKOVÉ NASTAVENIA
+       ======================================================== */
+    const dictionary = {
+      sk: {
+        searchPlaceholder: "Hľadať na webe...",
+        modalTitle: "Nastavenia",
+        lblGenSettings: "Všeobecné (Jazyk, Vyhľadávač, Pozadie)",
+        lblLang: "Jazyk / Language",
+        lblSe: "Vyhľadávač",
+        lblBg: "Pozadie",
+        bgDef: "Predvolené",
+        bgFile: "Vlastný obrázok z PC",
+        bgUnsp: "Unsplash / Náhodná",
+        btnResetBg: "Vymazať vlastné pozadie",
+        btnSaveGen: "Uložiť všeobecné",
+        lblWeather: "Mesto / Lokalita pre počasie",
+        lblAi: "Cieľová stránka pre tlačidlo AI",
+        lblShortcuts: "Rýchly prístup (Skratky)",
+        btnSave: "Uložiť",
+        btnAdd: "+ Pridať",
+        btnDone: "Hotovo",
+        scTitleHolder: "Názov (napr. YouTube)",
+        noSc: "Žiadne pridané skratky",
+        statusCity: "Lokalita uložená!",
+        statusAi: "Adresa AI uložená!",
+        statusGen: "Všeobecné nastavenia uložené!"
+      },
+      en: {
+        searchPlaceholder: "Search the web...",
+        modalTitle: "Settings",
+        lblGenSettings: "General (Lang, Search, BG)",
+        lblLang: "Language",
+        lblSe: "Search Engine",
+        lblBg: "Background",
+        bgDef: "Default",
+        bgFile: "Custom Image from PC",
+        bgUnsp: "Unsplash / Random",
+        btnResetBg: "Clear custom background",
+        btnSaveGen: "Save General",
+        lblWeather: "City for weather",
+        lblAi: "AI button URL",
+        lblShortcuts: "Quick Access (Shortcuts)",
+        btnSave: "Save",
+        btnAdd: "+ Add",
+        btnDone: "Done",
+        scTitleHolder: "Title (e.g. YouTube)",
+        noSc: "No shortcuts added",
+        statusCity: "Location saved!",
+        statusAi: "AI link saved!",
+        statusGen: "General settings saved!"
+      }
+    };
+
+    /* ========================================================
+       1. ČAS A DÁTUM (Bez sekúnd)
        ======================================================== */
     const clockEl = document.getElementById('clock-display');
     const dateEl = document.getElementById('date-display');
-
-    const dni = ['Nedeľa', 'Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok', 'Sobota'];
-    const mesiace = ['Januára', 'Februára', 'Marca', 'Apríla', 'Mája', 'Júna', 'Júla', 'Augusta', 'Septembra', 'Októbra', 'Novembra', 'Decembra'];
 
     function updateTime() {
       const now = new Date();
@@ -284,15 +384,22 @@
       const m = String(now.getMinutes()).padStart(2, '0');
       clockEl.textContent = `${h}:${m}`;
 
-      const den = dni[now.getDay()];
-      const datum = now.getDate();
-      const mesiac = mesiace[now.getMonth()];
-      const rok = now.getFullYear();
-      dateEl.textContent = `${den} ${datum}. ${mesiac} ${rok}`;
+      const lang = getStorage('tab_lang', 'sk');
+      if (lang === 'sk') {
+        const dni = ['Nedeľa', 'Pondelok', 'Utorok', 'Streda', 'Štvrtok', 'Piatok', 'Sobota'];
+        const mesiace = ['Januára', 'Februára', 'Marca', 'Apríla', 'Mája', 'Júna', 'Júla', 'Augusta', 'Septembra', 'Októbra', 'Novembra', 'Decembra'];
+        const den = dni[now.getDay()];
+        const datum = now.getDate();
+        const mesiac = mesiace[now.getMonth()];
+        const rok = now.getFullYear();
+        dateEl.textContent = `${den} ${datum}. ${mesiac} ${rok}`;
+      } else {
+        const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-US', options);
+      }
     }
 
     updateTime();
-    // Aktualizácia každú sekundu pre presný prechod minúty
     setInterval(updateTime, 1000);
 
     /* ========================================================
@@ -325,7 +432,125 @@
     }
 
     /* ========================================================
-       3. AI TLAČIDLO
+       3. APLIKOVANIE VŠEOBECNÝCH NASTAVENÍ (Jazyk, SE, BG)
+       ======================================================== */
+    function applyLanguage() {
+      const lang = getStorage('tab_lang', 'sk');
+      const t = dictionary[lang];
+      
+      document.getElementById('search-query').placeholder = t.searchPlaceholder;
+      document.getElementById('modal-title-text').textContent = t.modalTitle;
+      document.getElementById('lbl-gen-settings').textContent = t.lblGenSettings;
+      document.getElementById('lbl-lang').textContent = t.lblLang;
+      document.getElementById('lbl-se').textContent = t.lblSe;
+      document.getElementById('lbl-bg').textContent = t.lblBg;
+      document.getElementById('opt-bg-def').textContent = t.bgDef;
+      document.getElementById('opt-bg-file').textContent = t.bgFile;
+      document.getElementById('opt-bg-unsp').textContent = t.bgUnsp;
+      document.getElementById('btn-reset-bg').textContent = t.btnResetBg;
+      document.getElementById('btn-save-general').textContent = t.btnSaveGen;
+      document.getElementById('lbl-weather-text').textContent = t.lblWeather;
+      document.getElementById('lbl-ai-text').textContent = t.lblAi;
+      document.getElementById('lbl-sc-text').textContent = t.lblShortcuts;
+      document.getElementById('btn-save-weather').textContent = t.btnSave;
+      document.getElementById('btn-save-ai').textContent = t.btnSave;
+      document.getElementById('btn-add-sc').textContent = t.btnAdd;
+      document.getElementById('btn-done').textContent = t.btnDone;
+      document.getElementById('input-sc-title').placeholder = t.scTitleHolder;
+      
+      // Update re-renders
+      updateTime();
+      renderShortcuts();
+    }
+
+    function applySearchEngine() {
+      const se = getStorage('tab_se', 'google');
+      const form = document.getElementById('search-form');
+      const input = document.getElementById('search-query');
+      const engines = {
+        google: { url: 'https://www.google.com/search', param: 'q' },
+        bing: { url: 'https://www.bing.com/search', param: 'q' },
+        brave: { url: 'https://search.brave.com/search', param: 'q' },
+        duckduckgo: { url: 'https://duckduckgo.com/', param: 'q' }
+      };
+      form.action = engines[se].url;
+      input.name = engines[se].param;
+    }
+
+    function applyBackground() {
+      const bgType = getStorage('tab_bg_type', 'default');
+      const bgData = getStorage('tab_bg_data', '');
+      const resetBtn = document.getElementById('btn-reset-bg');
+      
+      resetBtn.classList.add('hidden');
+      
+      if (bgType === 'file' && bgData) {
+        document.body.style.background = `url(${bgData}) no-repeat center center fixed`;
+        document.body.style.backgroundSize = 'cover';
+        resetBtn.classList.remove('hidden');
+      } else if (bgType === 'unsplash') {
+        document.body.style.background = `url('https://picsum.photos/1920/1080?random=${Math.random()}') no-repeat center center fixed`;
+        document.body.style.backgroundSize = 'cover';
+      } else {
+        document.body.style.background = 'radial-gradient(circle at 50% 20%, #171836 0%, #0d0f22 65%, #080914 100%)';
+      }
+    }
+
+    function saveGeneralSettings() {
+      const lang = document.getElementById('select-lang').value;
+      const se = document.getElementById('select-se').value;
+      const bgType = document.getElementById('select-bg').value;
+
+      setStorage('tab_lang', lang);
+      setStorage('tab_se', se);
+      setStorage('tab_bg_type', bgType);
+
+      // Ak nevyužívame obrázok, vymažeme ho kvôli úspore pamäte
+      if (bgType !== 'file') setStorage('tab_bg_data', '');
+
+      applyLanguage();
+      applySearchEngine();
+      applyBackground();
+      
+      const t = dictionary[lang];
+      showStatusMessage(t.statusGen);
+    }
+
+    // Logic pre nahrávanie obrázka pozadia
+    document.getElementById('select-bg').addEventListener('change', (e) => {
+      const fileInput = document.getElementById('input-bg-file');
+      if (e.target.value === 'file') {
+        fileInput.classList.remove('hidden');
+      } else {
+        fileInput.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('input-bg-file').addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            setStorage('tab_bg_data', e.target.result);
+          } catch (err) {
+            alert('Obrázok je príliš veľký! Vyberte prosím menší súbor.');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('btn-reset-bg').addEventListener('click', () => {
+      setStorage('tab_bg_data', '');
+      setStorage('tab_bg_type', 'default');
+      document.getElementById('select-bg').value = 'default';
+      document.getElementById('input-bg-file').classList.add('hidden');
+      applyBackground();
+    });
+
+    /* ========================================================
+       4. AI TLAČIDLO
        ======================================================== */
     function applyAiButton() {
       const aiUrl = getStorage('tab_ai_url', DEFAULT_AI_URL);
@@ -342,17 +567,18 @@
       }
       setStorage('tab_ai_url', val);
       applyAiButton();
-      showStatusMessage('Adresa AI uložená!');
+      
+      const lang = getStorage('tab_lang', 'sk');
+      showStatusMessage(dictionary[lang].statusAi);
     }
 
     /* ========================================================
-       4. POČASIE (Open-Meteo API bez nutnosti API kľúča)
+       5. POČASIE (Open-Meteo)
        ======================================================== */
     const weatherTempEl = document.getElementById('weather-temp');
     const weatherCityEl = document.getElementById('weather-city');
     const weatherIconWrap = document.getElementById('weather-icon-wrap');
 
-    // Prevod WMO kódov na ikony Phosphor
     function getWeatherIcon(code, isDay = 1) {
       if (code === 0) return isDay ? 'ph-sun' : 'ph-moon';
       if (code >= 1 && code <= 3) return isDay ? 'ph-cloud-sun' : 'ph-cloud-moon';
@@ -368,7 +594,6 @@
     async function fetchWeather(cityName) {
       weatherCityEl.textContent = cityName;
       try {
-        // 1. Získanie súradníc pre mesto cez geocoding
         const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=sk&format=json`);
         const geoData = await geoRes.json();
 
@@ -381,7 +606,6 @@
         const lon = location.longitude;
         weatherCityEl.textContent = location.name;
 
-        // 2. Načítanie aktuálnej teploty a počasia
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day`);
         const weatherData = await weatherRes.json();
 
@@ -392,8 +616,7 @@
         weatherTempEl.textContent = `${temp} °C`;
         weatherIconWrap.innerHTML = `<i class="ph ${iconClass} text-2xl text-amber-300"></i>`;
       } catch (err) {
-        console.warn('Počasie sa nepodarilo načítať online, použité predvolené zobrazenie:', err);
-        weatherTempEl.textContent = `15 °C`;
+        weatherTempEl.textContent = `-- °C`;
         weatherCityEl.textContent = cityName;
         weatherIconWrap.innerHTML = `<i class="ph ph-sun text-2xl text-amber-300"></i>`;
       }
@@ -405,39 +628,36 @@
       if (!val) return;
       setStorage('tab_weather_city', val);
       fetchWeather(val);
-      showStatusMessage(`Lokalita "${val}" uložená!`);
+      
+      const lang = getStorage('tab_lang', 'sk');
+      showStatusMessage(dictionary[lang].statusCity);
     }
 
     /* ========================================================
-       5. RÝCHLY PRÍSTUP (Skratky pod vyhľadávacím poľom)
+       6. RÝCHLY PRÍSTUP (Skratky)
        ======================================================== */
     function renderShortcuts() {
       const shortcuts = getStorage('tab_shortcuts', DEFAULT_SHORTCUTS);
       const container = document.getElementById('shortcuts-grid');
       const manageList = document.getElementById('shortcuts-manage-list');
       const countEl = document.getElementById('shortcut-count');
+      const lang = getStorage('tab_lang', 'sk');
+      const t = dictionary[lang];
 
       container.innerHTML = '';
       manageList.innerHTML = '';
       countEl.textContent = `${shortcuts.length}/8`;
 
-      // Vykreslenie dlaždíc na ploche
       shortcuts.forEach(sc => {
         let hostname = '';
-        try {
-          hostname = new URL(sc.url).hostname;
-        } catch (e) {
-          hostname = sc.url;
-        }
+        try { hostname = new URL(sc.url).hostname; } catch (e) { hostname = sc.url; }
 
         const tile = document.createElement('a');
         tile.href = sc.url;
         tile.className = "glass-card group flex items-center space-x-2.5 px-3.5 py-2 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-md";
         tile.title = sc.title;
 
-        // Google favicon service pre spoľahlivé ikonky webov
         const iconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
-
         tile.innerHTML = `
           <img src="${iconUrl}" alt="" class="w-4 h-4 rounded-full opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/32x32/1e293b/94a3b8?text=•'"/>
           <span class="text-xs font-medium text-slate-200 group-hover:text-white transition-colors truncate max-w-[100px]">${sc.title}</span>
@@ -445,9 +665,8 @@
         container.appendChild(tile);
       });
 
-      // Vykreslenie položiek v okne nastavení
       if (shortcuts.length === 0) {
-        manageList.innerHTML = `<div class="text-xs text-slate-500 text-center py-2">Žiadne pridané skratky</div>`;
+        manageList.innerHTML = `<div class="text-xs text-slate-500 text-center py-2">${t.noSc}</div>`;
       } else {
         shortcuts.forEach(sc => {
           const item = document.createElement('div');
@@ -473,22 +692,15 @@
       let url = urlInput.value.trim();
 
       if (!title || !url) return;
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-      }
+      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
 
       const shortcuts = getStorage('tab_shortcuts', DEFAULT_SHORTCUTS);
       if (shortcuts.length >= 8) {
-        showStatusMessage('Dosiahnutý maximálny limit 8 skratiek.');
+        showStatusMessage('Limit je 8 skratiek.');
         return;
       }
 
-      shortcuts.push({
-        id: Date.now().toString(),
-        title,
-        url
-      });
-
+      shortcuts.push({ id: Date.now().toString(), title, url });
       setStorage('tab_shortcuts', shortcuts);
       titleInput.value = '';
       urlInput.value = '';
@@ -503,13 +715,24 @@
     }
 
     /* ========================================================
-       6. OVLÁDANIE NASTAVENÍ (MODAL)
+       7. OVLÁDANIE NASTAVENÍ (MODAL)
        ======================================================== */
     const modal = document.getElementById('settings-modal');
     const modalContent = document.getElementById('settings-content');
 
     function openSettingsModal(targetId = null) {
-      // Predvyplnenie polí
+      // Predvyplnenie všeobecných polí
+      document.getElementById('select-lang').value = getStorage('tab_lang', 'sk');
+      document.getElementById('select-se').value = getStorage('tab_se', 'google');
+      const bgType = getStorage('tab_bg_type', 'default');
+      document.getElementById('select-bg').value = bgType;
+      
+      if(bgType === 'file') {
+        document.getElementById('input-bg-file').classList.remove('hidden');
+      } else {
+        document.getElementById('input-bg-file').classList.add('hidden');
+      }
+
       document.getElementById('input-city').value = getStorage('tab_weather_city', DEFAULT_CITY);
       document.getElementById('input-ai-url').value = getStorage('tab_ai_url', DEFAULT_AI_URL);
 
@@ -532,7 +755,6 @@
       document.getElementById('weather-status-msg').textContent = '';
     }
 
-    // Zatvorenie pri kliknutí mimo okna
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeSettingsModal();
     });
@@ -541,20 +763,19 @@
       const el = document.getElementById('weather-status-msg');
       el.textContent = msg;
       el.classList.add('text-indigo-400');
-      setTimeout(() => {
-        el.textContent = '';
-      }, 3000);
+      setTimeout(() => el.textContent = '', 3000);
     }
 
     /* ========================================================
-       7. INICIALIZÁCIA PRI ŠTARTE
+       8. INICIALIZÁCIA PRI ŠTARTE
        ======================================================== */
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. Nastavenie AI
+      applyLanguage();
+      applySearchEngine();
+      applyBackground();
       applyAiButton();
-      // 2. Skratky
       renderShortcuts();
-      // 3. Počasie
+      
       const savedCity = getStorage('tab_weather_city', DEFAULT_CITY);
       fetchWeather(savedCity);
     });
